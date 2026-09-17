@@ -1,0 +1,24 @@
+diff --git a/CMakeFilters.cmake b/CMakeFilters.cmake
+index 2089d0f..e7426a6 100644
+--- a/CMakeFilters.cmake
++++ b/CMakeFilters.cmake
+@@ -124,7 +124,7 @@ set (HDF4_ENABLE_Z_LIB_SUPPORT ON) #Enable libzlib required
+ if (HDF4_ENABLE_Z_LIB_SUPPORT)
+   if (NOT H4_ZLIB_HEADER)
+     if (NOT ZLIB_USE_EXTERNAL)
+-      find_package (ZLIB NAMES ${ZLIB_PACKAGE_NAME}${HDF_PACKAGE_EXT} COMPONENTS static shared)
++      find_package (ZLIB NAMES ${ZLIB_PACKAGE_NAME}${HDF_PACKAGE_EXT})
+       if (NOT ZLIB_FOUND)
+         find_package (ZLIB) # Legacy find
+       endif ()
+@@ -133,6 +133,10 @@ if (HDF4_ENABLE_Z_LIB_SUPPORT)
+         set (ZLIB_INCLUDE_DIR_GEN ${ZLIB_INCLUDE_DIR})
+         set (ZLIB_INCLUDE_DIRS ${ZLIB_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIR})
+         set (LINK_COMP_LIBS ${LINK_COMP_LIBS} ${ZLIB_LIBRARIES})
++        # vcpkg exports only the ZLIB::ZLIB imported target.
++        if (TARGET ZLIB::ZLIB)
++          set (LINK_COMP_LIBS ${LINK_COMP_LIBS} ZLIB::ZLIB)
++        endif ()
+       endif ()
+     else ()
+       if (HDF4_ALLOW_EXTERNAL_SUPPORT MATCHES "GIT" OR HDF4_ALLOW_EXTERNAL_SUPPORT MATCHES "TGZ")

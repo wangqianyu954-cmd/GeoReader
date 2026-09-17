@@ -1,0 +1,3 @@
+# vcpkg applies checked-in overlay patches with `git apply`, which expects
+# unified diffs with LF line endings on every platform.
+*.patch text eol=lf

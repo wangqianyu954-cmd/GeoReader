@@ -310,8 +310,9 @@ if(GEOREADER_BUILD_TESTS)
         Qt6::Widgets
         Qt6::Concurrent
         GDAL::GDAL
-        "${ICU_UC_LIBRARY}"
-        "${ICU_I18N_LIBRARY}"
+        # 与 GeoReader 目标保持一致：不加引号，保留 optimized/debug 关键字。
+        ${ICU_UC_LIBRARY}
+        ${ICU_I18N_LIBRARY}
         ${GEOREADER_MAPNIK_LINK_TARGETS}
     )
     add_test(NAME GeoReaderInteractionTests COMMAND GeoReaderInteractionTests)
@@ -333,6 +334,35 @@ if(GEOREADER_BUILD_TESTS)
     )
     add_test(NAME GeoReaderMultidimensionalTests
              COMMAND GeoReaderMultidimensionalTests)
+
+    # HDF4 is an optional GDAL capability, so the sample generator is only
+    # offered when its development files are present.  It never becomes a
+    # dependency of the normal application build.
+    find_path(GEOREADER_HDF4_INCLUDE_DIR hdf.h
+        HINTS ${_georeader_dependency_roots}
+        PATH_SUFFIXES include)
+    find_library(GEOREADER_HDF4_MFHDF_LIBRARY NAMES mfhdf
+        HINTS ${_georeader_dependency_roots}
+        PATH_SUFFIXES lib)
+    find_library(GEOREADER_HDF4_DF_LIBRARY NAMES hdf df
+        HINTS ${_georeader_dependency_roots}
+        PATH_SUFFIXES lib)
+    if(GEOREADER_HDF4_INCLUDE_DIR
+       AND GEOREADER_HDF4_MFHDF_LIBRARY
+       AND GEOREADER_HDF4_DF_LIBRARY)
+        add_executable(GeoReaderHdf4SampleGenerator
+            tests/tools/make_hdf4_samples.cpp)
+        target_include_directories(GeoReaderHdf4SampleGenerator SYSTEM PRIVATE
+            "${GEOREADER_HDF4_INCLUDE_DIR}")
+        target_link_libraries(GeoReaderHdf4SampleGenerator PRIVATE
+            "${GEOREADER_HDF4_MFHDF_LIBRARY}"
+            "${GEOREADER_HDF4_DF_LIBRARY}")
+        message(STATUS
+            "GeoReader HDF4 sample generator: ${GEOREADER_HDF4_DF_LIBRARY}")
+    else()
+        message(STATUS
+            "GeoReader HDF4 sample generator skipped: HDF4 was not found")
+    endif()
 endif()
 
 qt_add_translations(GeoReader
@@ -406,8 +436,12 @@ target_link_libraries(GeoReader PRIVATE
     Qt6::Concurrent
     qlementine
     GDAL::GDAL
-    "${ICU_UC_LIBRARY}"
-    "${ICU_I18N_LIBRARY}"
+    # ICU 变量在多配置 triplet（如 x64-windows）下会被 FindICU 展开成
+    # "optimized;<release>;debug;<debug>" 列表；一旦加引号，optimized 与
+    # debug 就退化成普通库名并导致 LNK1181。保持不加引号让 CMake 正确
+    # 解析这些链接关键字。
+    ${ICU_UC_LIBRARY}
+    ${ICU_I18N_LIBRARY}
     ${GEOREADER_MAPNIK_LINK_TARGETS}
 )
 

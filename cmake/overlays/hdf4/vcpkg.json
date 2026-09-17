@@ -1,0 +1,21 @@
+{
+  "name": "hdf4",
+  "version": "4.3.0",
+  "description": "HDF4 scientific data library required by the GDAL HDF4 and HDF4Image drivers.",
+  "homepage": "https://www.hdfgroup.org/solutions/hdf4/",
+  "documentation": "https://support.hdfgroup.org/documentation/hdf4/",
+  "license": "BSD-3-Clause",
+  "supports": "!uwp",
+  "dependencies": [
+    "libjpeg-turbo",
+    "zlib",
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    }
+  ]
+}
